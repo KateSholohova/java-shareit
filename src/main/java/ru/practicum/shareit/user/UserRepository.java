@@ -54,7 +54,7 @@ public class UserRepository {
     }
 
 
-    public void delete(long id) {
+    public void delete(int id) {
         if (users.containsKey(id)) {
             users.remove(id);
         }
