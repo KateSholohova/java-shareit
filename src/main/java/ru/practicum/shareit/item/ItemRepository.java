@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -23,17 +22,17 @@ public class ItemRepository {
     private int count = 0;
     private final UserRepository userRepository;
 
-    public ItemDto create(int userId, Item item) {
+    public Item create(int userId, Item item) {
 
         item.setOwner(userRepository.getOwner(userId));
         isParametersNotNull(item);
         item.setId(identify());
         items.put(item.getId(), item);
         log.info("Вещь создана: {}", item);
-        return ItemMapper.toItemDto(item);
+        return item;
     }
 
-    public ItemDto update(int userId, Item item, int itemId) {
+    public Item update(int userId, Item item, int itemId) {
         isOwner(userId, itemId);
         if (items.containsKey(itemId)) {
 
@@ -49,30 +48,28 @@ public class ItemRepository {
             }
 
             log.info("Вещь обновлена: {}", oldItem);
-            return ItemMapper.toItemDto(oldItem);
+            return oldItem;
         }
         log.error("Нет вещи с данным id: {}", itemId);
         throw new NotFoundException("Вещь с id = " + itemId + " не найдена");
 
     }
 
-    public ItemDto findById(int userId, int itemId) {
-        return ItemMapper.toItemDto(items.get(itemId));
+    public Item findById(int userId, int itemId) {
+        return items.get(itemId);
     }
 
-    public List<ItemDto> findAll(int userId) {
+    public List<Item> findAll(int userId) {
         List<Item> userItems = new ArrayList<>();
         for (Item item : items.values()) {
             if (userId == item.getOwner().getId()) {
                 userItems.add(item);
             }
         }
-        return userItems.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return userItems;
     }
 
-    public List<ItemDto> search(String text) {
+    public List<Item> search(String text) {
         List<Item> searchedItems = new ArrayList<>();
         if (text.isBlank()) {
             return new ArrayList<>();
@@ -85,9 +82,7 @@ public class ItemRepository {
             }
         }
 
-        return searchedItems.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return searchedItems;
     }
 
 

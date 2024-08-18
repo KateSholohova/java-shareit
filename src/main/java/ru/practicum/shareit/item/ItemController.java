@@ -26,13 +26,13 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") int userId,
                           @PathVariable("itemId") int itemId,
-                          @RequestBody Item item) {
+                          @RequestBody ItemDto item) {
         return itemService.update(userId, item, itemId);
     }
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") int userId,
-                          @RequestBody Item item) {
+                          @RequestBody ItemDto item) {
         return itemService.create(userId, item);
     }
 

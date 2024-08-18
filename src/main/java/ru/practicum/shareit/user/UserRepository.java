@@ -10,7 +10,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -19,7 +18,7 @@ public class UserRepository {
     private final Map<Integer, User> users = new HashMap<>();
     private int count = 0;
 
-    public UserDto create(User user) {
+    public User create(User user) {
         if (isSameEmail(user)) {
             throw new SameEmailException(user.getEmail());
         }
@@ -29,10 +28,10 @@ public class UserRepository {
         user.setId(identify());
         users.put(user.getId(), user);
         log.info("Пользователь создан: {}", user);
-        return UserMapper.toUserDto(user);
+        return user;
     }
 
-    public UserDto update(int id, User newUser) {
+    public User update(int id, User newUser) {
         newUser.setId(id);
 
         if (users.containsKey(newUser.getId())) {
@@ -47,7 +46,7 @@ public class UserRepository {
                 oldUser.setEmail(newUser.getEmail());
             }
             log.info("Пользователь обновлен: {}", oldUser);
-            return UserMapper.toUserDto(oldUser);
+            return oldUser;
         }
         log.error("Нет пользователя с данным id: {}", newUser.getId());
         throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
@@ -60,14 +59,12 @@ public class UserRepository {
         }
     }
 
-    public List<UserDto> findAll() {
-        return users.values().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+    public List<User> findAll() {
+        return users.values().stream().toList();
     }
 
-    public UserDto findById(int id) {
-        return UserMapper.toUserDto(users.get(id));
+    public User findById(int id) {
+        return users.get(id);
     }
 
     public int identify() {
