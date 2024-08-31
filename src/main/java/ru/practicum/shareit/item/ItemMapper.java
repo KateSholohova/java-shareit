@@ -8,6 +8,7 @@ public class ItemMapper {
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
         itemDto.setIdItemRequest(item.getRequest() != null ? item.getRequest().getId() : null);
+
         return itemDto;
     }
 
@@ -19,5 +20,6 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         return item;
     }
+
 
 }
