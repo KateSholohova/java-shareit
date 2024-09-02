@@ -15,6 +15,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String text;
+    @Column(name = "author_name")
     private String authorName;
     private LocalDateTime created;
     @ManyToOne

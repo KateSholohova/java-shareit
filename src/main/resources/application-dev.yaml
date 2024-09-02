@@ -9,6 +9,6 @@ spring:
       mode: ALWAYS
   datasource:
     url: jdbc:postgresql://localhost:5432/shareit
-    username: dbuser
-    password: 12345
+    username: postgres
+    password: 1
     driverClassName: org.postgresql.Driver
