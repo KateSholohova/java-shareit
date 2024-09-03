@@ -8,7 +8,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -22,7 +21,6 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public BookingDto create(int userId, BookingDto bookingDto) {
         if (itemRepository.existsById(bookingDto.getItemId()) && userRepository.existsById(userId)) {
@@ -66,7 +64,7 @@ public class BookingService {
         throw new ValidationException("Не правильный id пользователя " + userId);
     }
 
-    public List<BookingDto> getByBookerId(int userId, String state) {
+    public List<BookingDto> getByBookerId(int userId, State state) {
         List<Booking> bookings = bookingRepository.findAllByBooker_Id(userId);
         bookings.sort(Comparator.comparing(Booking::getStart).reversed());
         if (bookingRepository.existsByBooker_Id(userId)) {
@@ -76,7 +74,7 @@ public class BookingService {
         throw new ValidationException("Не правильный id пользователя " + userId);
     }
 
-    public List<BookingDto> getByOwnerId(int userId, String state) {
+    public List<BookingDto> getByOwnerId(int userId, State state) {
         if (bookingRepository.existsByBooker_Id(userId)) {
             List<Integer> itemIds = itemRepository.findAllIdsByOwnerId(userId);
             List<Booking> bookings = bookingRepository.findAllByItemIdIn(itemIds);
@@ -84,42 +82,37 @@ public class BookingService {
             return checkState(userId, state, bookings);
         }
 
-        throw new ValidationException("Не правильный id пользователя " + userId);
+        throw new NotFoundException("Не правильный id пользователя " + userId);
     }
 
 
-    public List<BookingDto> checkState(int userId, String state, List<Booking> bookings) {
-        if (state.equals("FUTURE")) {
-            return bookings.stream()
+    public List<BookingDto> checkState(int userId, State state, List<Booking> bookings) {
+        return switch (state) {
+            case FUTURE -> bookings.stream()
                     .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-        } else if (state.equals("REJECTED")) {
-            return bookings.stream()
+            case REJECTED -> bookings.stream()
                     .filter(booking -> booking.getStatus() == Status.REJECTED)
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-        } else if (state.equals("WAITING")) {
-            return bookings.stream()
+            case WAITING -> bookings.stream()
                     .filter(booking -> booking.getStatus() == Status.WAITING)
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-        } else if (state.equals("PAST")) {
-            return bookings.stream()
+            case PAST -> bookings.stream()
                     .filter(booking -> booking.getStatus() == Status.CANCELED)
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-        } else if (state.equals("CURRENT")) {
-            return bookings.stream()
+            case CURRENT -> bookings.stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                             && booking.getEnd().isAfter(LocalDateTime.now()))
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-        } else {
-            return bookings.stream()
+            default -> bookings.stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-        }
+        };
     }
 
 }

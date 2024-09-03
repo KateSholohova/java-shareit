@@ -2,9 +2,9 @@ package ru.practicum.shareit.booking;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -18,11 +18,11 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NonNull
+    @NotNull
     @Future
     @Column(name = "start_date")
     private LocalDateTime start;
-    @NonNull
+    @NotNull
     @Future
     @Column(name = "end_date")
     private LocalDateTime end;

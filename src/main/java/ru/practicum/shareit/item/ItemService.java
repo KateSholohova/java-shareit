@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -69,6 +70,32 @@ public class ItemService {
     public ItemDto findById(int userId, int itemId) {
         ItemDto itemDto = ItemMapper.toItemDto(itemRepository.findById(itemId).get());
         log.info("ItemDto: {}", itemDto);
+        if (itemRepository.findById(itemId).get().getOwner().getId() == userId) {
+            List<Booking> bookings = bookingRepository.findAllByItemId(itemId);
+            if (!bookings.isEmpty()) {
+                log.info("Bookings: {}", bookings);
+                List<LocalDateTime> lastBooking = new ArrayList<>();
+                List<LocalDateTime> nextBooking = new ArrayList<>();
+                for (Booking booking : bookings) {
+                    if (booking.getEnd().isBefore(LocalDateTime.now()) || booking.getEnd().isEqual(LocalDateTime.now())) {
+                        lastBooking.add(booking.getEnd());
+                    } else {
+                        nextBooking.add(booking.getStart());
+                    }
+
+                }
+                Collections.sort(nextBooking);
+                Collections.sort(lastBooking);
+                log.info("Next booking: {}", nextBooking);
+                log.info("Last booking: {}", lastBooking);
+                if (!nextBooking.isEmpty()) {
+                    itemDto.setNextBooking(nextBooking.getFirst());
+                }
+                if (!lastBooking.isEmpty()) {
+                    itemDto.setLastBooking(lastBooking.getLast());
+                }
+            }
+        }
         List<Comment> comments = commentRepository.findAllByItemId(itemDto.getId());
         if (comments == null || comments.isEmpty()) {
             comments = new ArrayList<>();
@@ -137,15 +164,15 @@ public class ItemService {
         return searchedItemsDto;
     }
 
-    public Comment createComment(int userId, int itemId, Comment comment) {
+    public CommentDto createComment(int userId, int itemId, CommentDto comment) {
 
         for (Booking booking : bookingRepository.findAllByBooker_Id(userId)) {
             if (booking.getItem().getId() == itemId && booking.getEnd().isBefore(LocalDateTime.now())) {
-                comment.setItem(itemRepository.findById(itemId).get());
-                comment.setAuthor(userRepository.findById(userId).get());
+                comment.setItem(ItemMapper.toItemDto(itemRepository.findById(itemId).get()));
+                comment.setAuthor(UserMapper.toUserDto(userRepository.findById(userId).get()));
                 comment.setAuthorName(comment.getAuthor().getName());
                 comment.setCreated(LocalDateTime.now());
-                commentRepository.save(comment);
+                commentRepository.save(CommentMapper.toComment(comment));
                 return comment;
             }
         }
