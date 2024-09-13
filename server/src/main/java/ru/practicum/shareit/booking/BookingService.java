@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -75,8 +76,9 @@ public class BookingService {
     }
 
     public List<BookingDto> getByOwnerId(int userId, State state) {
-        if (bookingRepository.existsByBooker_Id(userId)) {
-            List<Integer> itemIds = itemRepository.findAllIdsByOwnerId(userId);
+        if (itemRepository.existsByOwnerId(userId)) {
+            List<Item> items = itemRepository.findAllByOwnerId(userId);
+            List<Integer> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
             List<Booking> bookings = bookingRepository.findAllByItemIdIn(itemIds);
             bookings.sort(Comparator.comparing(Booking::getStart).reversed());
             return checkState(userId, state, bookings);

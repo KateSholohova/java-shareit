@@ -7,8 +7,8 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Integer> {
     List<Item> findAllByOwnerId(int id);
 
-    List<Integer> findAllIdsByOwnerId(int id);
-
     List<Item> findAllByRequestId(int id);
+
+    Boolean existsByOwnerId(int ownerId);
 
 }

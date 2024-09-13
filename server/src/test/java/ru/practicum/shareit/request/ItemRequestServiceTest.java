@@ -9,11 +9,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.ShareItServer;
-import ru.practicum.shareit.item.*;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.ItemDto;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestDto;
 import ru.practicum.shareit.request.ItemRequestService;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserService;
 
@@ -26,8 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestPropertySource(properties = {"jdbc.url=jdbc:postgresql://localhost:5432/test"})
-@SpringJUnitConfig({ShareItServer.class, UserService.class, ItemService.class, ItemRequestService.class,
-        ItemDto.class, ItemRequestDto.class, UserDto.class, CommentDto.class, Item.class, User.class, Comment.class})
+@SpringJUnitConfig({ShareItServer.class, UserService.class, ItemService.class, ItemRequestService.class})
 class ItemRequestServiceTest {
 
 
